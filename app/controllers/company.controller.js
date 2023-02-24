@@ -11,8 +11,14 @@ const createCompany = async (req, res) => {
 		// Validate request
 		if (!nit || !owner_id || !name) {
 			return res.status(400).send({
-				message: "Content can not be empty!",
+				message: "Missing required fields: nit, owner_id or name!",
 			});
+		}
+
+		// Check if the company already exists
+		const existingCompany = await companyManager.getCompanyById(nit);
+		if (existingCompany) {
+			return res.status(409).send({ message: `The company with Nit ${nit} already exists` });
 		}
 
 		// Create a Company body
@@ -26,7 +32,7 @@ const createCompany = async (req, res) => {
 
 		// Save Company in the database
 		const newCompany = await companyManager.createCompany(companyBody);
-		return res.status(200).send(newCompany);
+		return res.status(201).send(newCompany);
 	} catch (error) {
 		return res.status(500).send({
 			message: error.message || "Some error occurred while creating the Company.",
