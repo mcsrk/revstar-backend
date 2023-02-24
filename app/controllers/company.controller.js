@@ -74,13 +74,13 @@ const updateCompany = async (req, res) => {
 	try {
 		const updatedCompany = await companyManager.updateCompany(id, data);
 
-		if (updatedCompany === 1) {
+		if (updatedCompany == 1) {
 			res.send({
 				message: "Company was updated successfully.",
 			});
 		} else {
 			res.send({
-				message: `Cannot update company with nit=${id}. Maybe the company was not found or req.body is empty!`,
+				message: `Cannot update company with Nit ${id}. Maybe the company was not found or req.body is empty!`,
 			});
 		}
 
@@ -99,13 +99,13 @@ const deleteCompany = async (req, res) => {
 	try {
 		const deletedCompany = await companyManager.deleteCompany(id);
 
-		if (deletedCompany === 1) {
+		if (deletedCompany == 1) {
 			res.send({
 				message: "Company was deleted successfully!",
 			});
 		} else {
 			res.send({
-				message: `Cannot delete company with nit=${id}. Maybe the company was not found!`,
+				message: `Cannot delete company with Nit ${id}. Maybe the company was not found!`,
 			});
 		}
 
