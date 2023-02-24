@@ -1,5 +1,6 @@
 // Managers
 const companyManager = require("managers/company.manager");
+const inventoryManager = require("managers/inventory.manager");
 
 const fileTag = "[company.controller]";
 
@@ -32,10 +33,23 @@ const createCompany = async (req, res) => {
 
 		// Save Company in the database
 		const newCompany = await companyManager.createCompany(companyBody);
-		return res.status(201).send(newCompany);
+
+		// Create its default Inventory
+		const defaultInventoryBody = {
+			name: "Products",
+			company_nit: newCompany.nit,
+		};
+
+		const newInventory = await inventoryManager.createInventory(defaultInventoryBody);
+
+		// Return the newly created Company and associated Inventory
+		return res.status(201).send({
+			company: newCompany,
+			inventory: newInventory,
+		});
 	} catch (error) {
 		return res.status(500).send({
-			message: error.message || "Some error occurred while creating the Company.",
+			message: error.message || "Some error occurred while creating the Company and its default Inventory.",
 		});
 	}
 };
@@ -52,7 +66,7 @@ const getAllCompanies = async (req, res) => {
 	}
 };
 
-// Find a single Company with an id
+// Find a single Company by an id
 const getCompanyById = async (req, res) => {
 	const { id } = req.params;
 
@@ -74,17 +88,15 @@ const updateCompany = async (req, res) => {
 	try {
 		const updatedCompany = await companyManager.updateCompany(id, data);
 
+		let message = "";
+
 		if (updatedCompany == 1) {
-			res.send({
-				message: "Company was updated successfully.",
-			});
+			message = "Company was updated successfully.";
 		} else {
-			res.send({
-				message: `Cannot update company with Nit ${id}. Maybe the company was not found or req.body is empty!`,
-			});
+			message = `Cannot update company with Nit ${id}. Maybe the company was not found or req.body is empty!`;
 		}
 
-		return res.status(200).send(updatedCompany);
+		return res.status(200).send({ message });
 	} catch (error) {
 		return res.status(500).send({
 			message: error.message || "Some error occurred while updating a Company.",
@@ -99,17 +111,15 @@ const deleteCompany = async (req, res) => {
 	try {
 		const deletedCompany = await companyManager.deleteCompany(id);
 
+		let message = "";
+
 		if (deletedCompany == 1) {
-			res.send({
-				message: "Company was deleted successfully!",
-			});
+			message = "Company was deleted successfully.";
 		} else {
-			res.send({
-				message: `Cannot delete company with Nit ${id}. Maybe the company was not found!`,
-			});
+			message = `Cannot delete company with Nit ${id}. Maybe the company was not found!`;
 		}
 
-		return res.status(200).send(deletedCompany);
+		return res.status(200).send({ message });
 	} catch (error) {
 		return res.status(500).send({
 			message: error.message || "Some error occurred while deleting a company.",
