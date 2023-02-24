@@ -9,6 +9,7 @@ const db = require("models");
 // Routes
 const companyRoutes = require("routes/company.routes");
 const inventoryRoutes = require("routes/inventory.routes");
+const productRoutes = require("routes/product.routes");
 
 const app = express();
 dotenv.config();
@@ -43,6 +44,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api", companyRoutes);
 app.use("/api", inventoryRoutes);
+app.use("/api", productRoutes);
 
 // Set port, listen for requests
 const PORT = process.env.PORT || 8080;
