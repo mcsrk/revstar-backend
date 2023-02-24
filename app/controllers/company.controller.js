@@ -113,7 +113,7 @@ const deleteCompany = async (req, res) => {
 
 		let message = "";
 
-		if (deletedInventory == 1) {
+		if (deletedCompany == 1) {
 			message = "Company was deleted successfully.";
 		} else {
 			message = `Cannot delete company with Nit ${id}. Maybe the company was not found!`;
