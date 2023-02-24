@@ -1,5 +1,5 @@
 // Managers
-const companyManager = require("../managers/company.manager");
+const companyManager = require("managers/company.manager");
 
 const fileTag = "[company.controller]";
 

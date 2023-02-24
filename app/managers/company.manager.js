@@ -1,5 +1,5 @@
 // Models
-const db = require("../models");
+const db = require("models");
 const Company = db.company;
 
 const createCompany = async (data) => {
@@ -44,6 +44,7 @@ const deleteCompany = async (id) => {
 	try {
 		const deletedCompany = await Company.destroy({
 			where: { nit: id },
+			force: true,
 		});
 		return deletedCompany;
 	} catch (error) {

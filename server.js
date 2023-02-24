@@ -1,12 +1,13 @@
 const dotenv = require("dotenv");
 const express = require("express");
 const cors = require("cors");
+require("module-alias/register");
 
 // Databse Instance
-const db = require("./app/models");
+const db = require("models");
 
 // Routes
-const companyRoutes = require("./app/routes/company.routes");
+const companyRoutes = require("routes/company.routes");
 
 const app = express();
 dotenv.config();

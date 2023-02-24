@@ -1,8 +1,12 @@
-const CONFIG_MYSQL = require("../config/db.config.js");
+const CONFIG_MYSQL = require("config/db.config.js");
 
 const { Sequelize, DataTypes } = require("sequelize");
 
+// Models
 const userModel = require("./user.model.js");
+const companyModel = require("./company.model.js");
+const inventoryModel = require("./inventory.model.js");
+const productModel = require("./product.model.js");
 
 // Create sequelize instance
 const sequelize = new Sequelize(CONFIG_MYSQL.database, CONFIG_MYSQL.user, CONFIG_MYSQL.password, {
@@ -33,9 +37,9 @@ db.sequelize = sequelize;
 
 db.user = userModel(sequelize, DataTypes);
 
-db.company = require("./company.model.js")(sequelize, DataTypes);
-db.inventory = require("./inventory.model.js")(sequelize, DataTypes);
-db.product = require("./product.model.js")(sequelize, DataTypes);
+db.company = companyModel(sequelize, DataTypes);
+db.inventory = inventoryModel(sequelize, DataTypes);
+db.product = productModel(sequelize, DataTypes);
 
 // Relationships between models
 

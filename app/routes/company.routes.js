@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 // Controllers
-const companyController = require("../controllers/company.controller");
+const companyController = require("controllers/company.controller");
 
 // Create
 router.post("/companies", companyController.createCompany);
