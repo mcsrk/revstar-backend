@@ -1,5 +1,6 @@
 // Managers
 const companyManager = require("managers/company.manager");
+const inventoryManager = require("managers/inventory.manager");
 
 const fileTag = "[company.controller]";
 
@@ -32,10 +33,23 @@ const createCompany = async (req, res) => {
 
 		// Save Company in the database
 		const newCompany = await companyManager.createCompany(companyBody);
-		return res.status(201).send(newCompany);
+
+		// Create its default Inventory
+		const defaultInventoryBody = {
+			name: "Products",
+			company_nit: newCompany.nit,
+		};
+
+		const newInventory = await inventoryManager.createInventory(defaultInventoryBody);
+
+		// Return the newly created Company and associated Inventory
+		return res.status(201).send({
+			company: newCompany,
+			inventory: newInventory,
+		});
 	} catch (error) {
 		return res.status(500).send({
-			message: error.message || "Some error occurred while creating the Company.",
+			message: error.message || "Some error occurred while creating the Company and its default Inventory.",
 		});
 	}
 };
