@@ -1,25 +1,38 @@
 const express = require("express");
 const router = express.Router();
 
+//Auth
+const JWTAuth = require("middelware/JWTAuth");
+
 // Controllers
 const companyController = require("controllers/company.controller");
 
 // Create
-router.post("/companies", companyController.createCompany);
+router.post("/companies", (req, res) => {
+	JWTAuth.validateAuth({ req, res }, companyController.createCompany);
+});
 
 // GET
 // Get all companies
-router.get("/companies", companyController.getAllCompanies);
+router.get("/companies", (req, res) => {
+	JWTAuth.validateAuth({ req, res }, companyController.getAllCompanies);
+});
 
 // Get a single company
-router.get("/companies/:id", companyController.getCompanyById);
+router.get("/companies/:id", (req, res) => {
+	JWTAuth.validateAuth({ req, res }, companyController.getCompanyById);
+});
 
 // UPDATE
 // Update a single company
-router.put("/companies/:id", companyController.updateCompany);
+router.put("/companies/:id", (req, res) => {
+	JWTAuth.validateAuth({ req, res }, companyController.updateCompany);
+});
 
 // DELETE
 // Delete a single company
-router.delete("/companies/:id", companyController.deleteCompany);
+router.delete("/companies/:id", (req, res) => {
+	JWTAuth.validateAuth({ req, res }, companyController.deleteCompany);
+});
 
 module.exports = router;
