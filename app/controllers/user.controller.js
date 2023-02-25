@@ -69,8 +69,7 @@ const login = async (req, res) => {
 			expiresIn: "1h",
 		});
 
-		console.log({ secret: CONFIG_AUTH.secret, token });
-		if (token === "" || token == null) {
+		if (!token) {
 			return res.status(403).send({ message: "Invalid authentication" });
 		} else {
 			res.cookie("token", token, {
