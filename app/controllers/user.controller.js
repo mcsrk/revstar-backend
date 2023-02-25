@@ -1,3 +1,6 @@
+const CONFIG_AUTH = require("config/auth.config.js");
+const jwt = require("jsonwebtoken");
+
 // Managers
 const userManager = require("managers/user.manager");
 const bcrypt = require("bcrypt");
@@ -22,10 +25,13 @@ const createUser = async (req, res) => {
 			return res.status(409).send({ message: `The user with Username ${username} already exists` });
 		}
 
+		// Hash password
+		const hash = bcrypt.hashSync(req.body.password, CONFIG_AUTH.saltRounds);
+
 		// Create a User body
 		const userBody = {
 			username,
-			password,
+			password: hash,
 			is_admin,
 		};
 
