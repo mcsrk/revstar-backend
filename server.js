@@ -10,6 +10,7 @@ const db = require("models");
 const companyRoutes = require("routes/company.routes");
 const inventoryRoutes = require("routes/inventory.routes");
 const productRoutes = require("routes/product.routes");
+const userRoutes = require("routes/user.routes");
 
 const app = express();
 dotenv.config();
@@ -42,6 +43,7 @@ app.get("/", (req, res) => {
 });
 
 // Routes
+app.use("/api", userRoutes);
 app.use("/api", companyRoutes);
 app.use("/api", inventoryRoutes);
 app.use("/api", productRoutes);
