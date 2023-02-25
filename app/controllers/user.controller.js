@@ -47,6 +47,44 @@ const createUser = async (req, res) => {
 	}
 };
 
+// Log the user into the system
+const login = async (req, res) => {
+	const { username, password } = req.body;
+
+	try {
+		// Check if the user  exists
+		const user = await userManager.getUserByUsername(username);
+		if (!user) {
+			return res.status(404).send({ message: "User not found" });
+		}
+
+		// Check if the password is valid
+		const isValidPassword = await bcrypt.compare(password, user.password);
+		if (!isValidPassword) {
+			return res.status(401).send({ message: "Invalid password" });
+		}
+
+		// Generate a JWT token for the authenticated user
+		const token = jwt.sign({ userId: user.id, isAdmin: user.is_admin }, CONFIG_AUTH.secret, {
+			expiresIn: "1h",
+		});
+
+		console.log({ secret: CONFIG_AUTH.secret, token });
+		if (token === "" || token == null) {
+			return res.status(403).send({ message: "Invalid authentication" });
+		} else {
+			res.cookie("token", token, {
+				httpOnly: true /*,
+                secure: true,
+                signed: true,
+                maxAge: 100000*/,
+			});
+			return res.status(200).send(token);
+		}
+	} catch (e) {
+		return res.status(500).send({ message: e });
+	}
+};
 
 // Retrieve all Users from the database.
 const getAllUsers = async (req, res) => {
@@ -123,6 +161,7 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
 	createUser,
+	login,
 	getAllUsers,
 	getUserById,
 	updateUser,
