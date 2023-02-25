@@ -6,7 +6,8 @@
             "$controllers/*": ["controllers/*"],
             "$managers/*": ["managers/*"],
             "$models/*": ["models/*"],
-            "$routes/*": ["routes/*"]
+            "$routes/*": ["routes/*"],
+            "$middelware/*": ["middelware/*"]
         }
     }, 
     "exclude": ["node_modules"],

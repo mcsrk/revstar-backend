@@ -1,6 +1,8 @@
 const dotenv = require("dotenv");
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+
 require("module-alias/register");
 
 // Databse Instance
@@ -10,16 +12,19 @@ const db = require("models");
 const companyRoutes = require("routes/company.routes");
 const inventoryRoutes = require("routes/inventory.routes");
 const productRoutes = require("routes/product.routes");
+const userRoutes = require("routes/user.routes");
 
-const app = express();
 dotenv.config();
+
+const isDevelopment = process.env.NODE_ENV === "development";
+const app = express();
 
 const corsOptions = {
 	origin: "http://localhost:8081",
 };
 
 app.use(cors("*"));
-
+app.use(cookieParser());
 // Parse requests of content-type - application/json
 app.use(express.json());
 
@@ -42,6 +47,7 @@ app.get("/", (req, res) => {
 });
 
 // Routes
+app.use("/api", userRoutes);
 app.use("/api", companyRoutes);
 app.use("/api", inventoryRoutes);
 app.use("/api", productRoutes);
