@@ -1,0 +1,9 @@
+version: "1.0"
+
+services:
+  revstar_api:
+    container_name: revstar_api
+    build: .
+    restart: always
+    ports:
+      - "9000:9000"
