@@ -13,6 +13,7 @@ const companyRoutes = require("routes/company.routes");
 const inventoryRoutes = require("routes/inventory.routes");
 const productRoutes = require("routes/product.routes");
 const userRoutes = require("routes/user.routes");
+const listEndpoints = require("express-list-endpoints");
 
 dotenv.config();
 
@@ -41,16 +42,22 @@ db.sequelize
 		console.log("Failed to sync db: " + err.message);
 	});
 
-// Initial Route
-app.get("/", (req, res) => {
-	res.json({ message: "Revstar Test backend made by Jhon." });
-});
-
 // Routes
 app.use("/api", userRoutes);
 app.use("/api", companyRoutes);
 app.use("/api", inventoryRoutes);
 app.use("/api", productRoutes);
+
+// List all endpoints Initial Route
+app.use("/", (_, res) => {
+	const endpoints = listEndpoints(app)
+		.map(
+			(endpoint) =>
+				`${endpoint.methods.join(", ")} <a href="http://localhost:${PORT}${endpoint.path}">${endpoint.path}</a>`
+		)
+		.join("\n");
+	res.send(`<pre>${endpoints}</pre>`);
+});
 
 // Set port, listen for requests
 const PORT = process.env.PORT || 8080;
