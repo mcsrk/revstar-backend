@@ -19,6 +19,16 @@ const getAllCompanies = async () => {
 		throw new Error(error);
 	}
 };
+const getCompaniesByUser = async (user_id) => {
+	try {
+		const companies = await Company.findAll({
+			where: { owner_id: user_id },
+		});
+		return companies;
+	} catch (error) {
+		throw new Error(error);
+	}
+};
 
 const getCompanyById = async (id) => {
 	try {
@@ -55,6 +65,7 @@ const deleteCompany = async (id) => {
 module.exports = {
 	createCompany,
 	getAllCompanies,
+	getCompaniesByUser,
 	getCompanyById,
 	updateCompany,
 	deleteCompany,

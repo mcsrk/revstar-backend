@@ -5,8 +5,6 @@ const jwt = require("jsonwebtoken");
 const userManager = require("managers/user.manager");
 const bcrypt = require("bcrypt");
 
-const fileTag = "[user.controller]";
-
 // Create and Save a new User
 const createUser = async (req, res) => {
 	const { username, password, is_admin } = req.body;
@@ -76,7 +74,7 @@ const login = async (req, res) => {
 		}
 
 		// Generate a JWT token for the authenticated user
-		const token = jwt.sign({ userId: user.id, isAdmin: user.is_admin }, CONFIG_AUTH.secret, {
+		const token = jwt.sign({ id: user.id, username: user.username, is_admin: user.is_admin }, CONFIG_AUTH.secret, {
 			expiresIn: "30d",
 		});
 

@@ -1,8 +1,8 @@
 // Managers
 const companyManager = require("managers/company.manager");
 const inventoryManager = require("managers/inventory.manager");
+const userManager = require("managers/user.manager");
 
-const fileTag = "[company.controller]";
 
 // Create and Save a new Company
 const createCompany = async (req, res) => {
@@ -58,6 +58,26 @@ const createCompany = async (req, res) => {
 const getAllCompanies = async (req, res) => {
 	try {
 		const companies = await companyManager.getAllCompanies();
+		return res.status(200).send(companies);
+	} catch (error) {
+		return res.status(500).send({
+			message: error.message || "Some error occurred while retrieving the Companies by user.",
+		});
+	}
+};
+
+// Retrieve all Companies from the database.
+const getCompaniesByUser = async (req, res) => {
+	const { id: user_id } = req.params;
+
+	try {
+		// Check if the user  exists
+		const user = await userManager.getUserById(user_id);
+		if (!user) {
+			return res.status(404).send({ message: "Given user doesnt exists" });
+		}
+
+		const companies = await companyManager.getCompaniesByUser(user_id);
 		return res.status(200).send(companies);
 	} catch (error) {
 		return res.status(500).send({
@@ -130,6 +150,7 @@ const deleteCompany = async (req, res) => {
 module.exports = {
 	createCompany,
 	getAllCompanies,
+	getCompaniesByUser,
 	getCompanyById,
 	updateCompany,
 	deleteCompany,
