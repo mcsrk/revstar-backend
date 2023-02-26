@@ -12,17 +12,21 @@ const createUser = async (req, res) => {
 	const { username, password, is_admin } = req.body;
 
 	try {
+		const decodedUsername = Buffer.from(username, "base64").toString();
+		const decodedPassword = Buffer.from(password, "base64").toString();
+		const decodedIs_admin = Buffer.from(is_admin, "base64").toString();
+
 		// Validate request
-		if (!username || !password) {
+		if (!decodedUsername || !decodedPassword) {
 			return res.status(400).send({
 				message: "Missing required fields: username or password!",
 			});
 		}
 
 		// Check if the user already exists
-		const existingUser = await userManager.getUserByUsername(username);
+		const existingUser = await userManager.getUserByUsername(decodedUsername);
 		if (existingUser) {
-			return res.status(409).send({ message: `The user with Username ${username} already exists` });
+			return res.status(409).send({ message: `The user with Username ${decodedUsername} already exists` });
 		}
 
 		// Hash password
@@ -30,9 +34,9 @@ const createUser = async (req, res) => {
 
 		// Create a User body
 		const userBody = {
-			username,
+			username: decodedUsername,
 			password: hash,
-			is_admin,
+			is_admin: decodedIs_admin,
 		};
 
 		// Save User in the database
@@ -49,9 +53,16 @@ const createUser = async (req, res) => {
 
 // Log the user into the system
 const login = async (req, res) => {
-	const { username, password } = req.body;
+	// Get, decode and split the credentials sent in Headers
+
+	if (!req.headers.authorization) {
+		return res.status(401).send({ message: "Credentials not found" });
+	}
 
 	try {
+		const credentialsToken = req.headers.authorization.split(" ")[1];
+
+		const [username, password] = Buffer.from(credentialsToken, "base64").toString().split(":");
 		// Check if the user  exists
 		const user = await userManager.getUserByUsername(username);
 		if (!user) {
@@ -66,11 +77,10 @@ const login = async (req, res) => {
 
 		// Generate a JWT token for the authenticated user
 		const token = jwt.sign({ userId: user.id, isAdmin: user.is_admin }, CONFIG_AUTH.secret, {
-			expiresIn: "1h",
+			expiresIn: "30d",
 		});
 
-		console.log({ secret: CONFIG_AUTH.secret, token });
-		if (token === "" || token == null) {
+		if (!token) {
 			return res.status(403).send({ message: "Invalid authentication" });
 		} else {
 			res.cookie("token", token, {

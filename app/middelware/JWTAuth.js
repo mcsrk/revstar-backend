@@ -2,18 +2,24 @@ const CONFIG_AUTH = require("config/auth.config.js");
 
 const jwt = require("jsonwebtoken");
 
-exports.validateAuth = async ({ req, res }, callback) => {
-	// Get token from cookies
-	const token = req.cookies.token;
-	// Check if token is provided
-	if (!token) return res.status(401).send({ message: "No token provided" });
+exports.validateAuth = (req, res, next) => {
+	const excludedRoutes = ["/"]; // Array of routes that don't require authentication
 
+	if (excludedRoutes.includes(req.path)) {
+		return next(); // Skip authentication for excluded routes
+	}
+
+	let token = req.headers["authorization"]?.split(" ")[1];
 	try {
-		const user = jwt.verify(token, CONFIG_AUTH.secret);
-		req.user = user;
-		if (callback) await callback(req, res);
+		jwt.verify(token, CONFIG_AUTH.secret, (err, decoded) => {
+			if (err || !token) {
+				return res.status(401).send({ message: "No token provided" });
+			}
+			req.decoded = decoded;
+
+			next();
+		});
 	} catch (err) {
-		res.clearCookie("token");
-		res.status(403).send({ message: "Required authentication" });
+		return res.status(401).send({ message: "Authentication error", err });
 	}
 };
