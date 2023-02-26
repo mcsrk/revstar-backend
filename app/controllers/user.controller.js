@@ -10,19 +10,21 @@ const fileTag = "[user.controller]";
 // Create and Save a new User
 const createUser = async (req, res) => {
 	const { username, password, is_admin } = req.body;
+	const decodedUsername = Buffer.from(username, "base64").toString();
+	consolelog({ encrypted: decodedUsername, original: username });
 
 	try {
 		// Validate request
-		if (!username || !password) {
+		if (!decodedUsername || !password) {
 			return res.status(400).send({
 				message: "Missing required fields: username or password!",
 			});
 		}
 
 		// Check if the user already exists
-		const existingUser = await userManager.getUserByUsername(username);
+		const existingUser = await userManager.getUserByUsername(decodedUsername);
 		if (existingUser) {
-			return res.status(409).send({ message: `The user with Username ${username} already exists` });
+			return res.status(409).send({ message: `The user with Username ${decodedUsername} already exists` });
 		}
 
 		// Hash password
@@ -30,7 +32,7 @@ const createUser = async (req, res) => {
 
 		// Create a User body
 		const userBody = {
-			username,
+			username: decodedUsername,
 			password: hash,
 			is_admin,
 		};
@@ -49,7 +51,14 @@ const createUser = async (req, res) => {
 
 // Log the user into the system
 const login = async (req, res) => {
-	const { username, password } = req.body;
+	// Get, decode and split the credentials sent in Headers
+	if (!req.headers.authorization) {
+		return res.status(401).send({ message: "Credentials not found" });
+	}
+	const credentialsToken = req.headers.authorization.split(" ")[1];
+	const decodedCredentials = Buffer.from(credentialsToken, "base64").toString();
+
+	const [username, password] = decodedCredentials.split(":");
 
 	try {
 		// Check if the user  exists
