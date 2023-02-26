@@ -20,6 +20,16 @@ const getAllInventories = async () => {
 	}
 };
 
+const getInventoriesByCompany = async (company_nit) => {
+	try {
+		const inventory = await Inventory.findAll({
+			where: { company_nit },
+		});
+		return inventory;
+	} catch (error) {
+		throw new Error(error);
+	}
+};
 const getInventoryById = async (id) => {
 	try {
 		const inventory = await Inventory.findByPk(id);
@@ -55,6 +65,7 @@ const deleteInventory = async (id) => {
 module.exports = {
 	createInventory,
 	getAllInventories,
+	getInventoriesByCompany,
 	getInventoryById,
 	updateInventory,
 	deleteInventory,

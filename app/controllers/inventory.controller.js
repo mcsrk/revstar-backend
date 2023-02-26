@@ -1,7 +1,6 @@
 // Managers
 const inventoryManager = require("managers/inventory.manager");
-
-const fileTag = "[inventory.controller]";
+const companyManager = require("managers/company.manager");
 
 // Create and Save a new Inventory
 const createInventory = async (req, res) => {
@@ -35,6 +34,25 @@ const createInventory = async (req, res) => {
 const getAllInventories = async (req, res) => {
 	try {
 		const inventories = await inventoryManager.getAllInventories();
+		return res.status(200).send(inventories);
+	} catch (error) {
+		return res.status(500).send({
+			message: error.message || "Some error occurred while retrieving the Inventories.",
+		});
+	}
+};
+// Retrieve all Inventories by company.
+const getInventoriesByCompany = async (req, res) => {
+	const { id: company_nit } = req.params;
+
+	try {
+		// Check if the company  exists
+		const existingCompany = await companyManager.getCompanyById(company_nit);
+		if (!existingCompany) {
+			return res.status(404).send({ message: `The company with Nit ${company_nit} doesnt exists` });
+		}
+
+		const inventories = await inventoryManager.getInventoriesByCompany(company_nit);
 		return res.status(200).send(inventories);
 	} catch (error) {
 		return res.status(500).send({
@@ -107,6 +125,7 @@ const deleteInventory = async (req, res) => {
 module.exports = {
 	createInventory,
 	getAllInventories,
+	getInventoriesByCompany,
 	getInventoryById,
 	updateInventory,
 	deleteInventory,
