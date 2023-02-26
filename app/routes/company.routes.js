@@ -11,6 +11,9 @@ router.post("/companies", companyController.createCompany);
 // Get all companies
 router.get("/companies", companyController.getAllCompanies);
 
+//a single user
+router.get("/users/:id/companies", companyController.getCompaniesByUser);
+
 // Get a single company
 router.get("/companies/:id", companyController.getCompanyById);
 
