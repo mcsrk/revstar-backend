@@ -11,6 +11,9 @@ router.post("/inventories", inventoryController.createInventory);
 // Get all inventories
 router.get("/inventories", inventoryController.getAllInventories);
 
+// Get inventories by company
+router.get("/companies/:id/inventories", inventoryController.getInventoriesByCompany);
+
 // Get a single inventory
 router.get("/inventories/:id", inventoryController.getInventoryById);
 
