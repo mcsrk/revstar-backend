@@ -10,12 +10,14 @@ const fileTag = "[user.controller]";
 // Create and Save a new User
 const createUser = async (req, res) => {
 	const { username, password, is_admin } = req.body;
-	const decodedUsername = Buffer.from(username, "base64").toString();
-	consolelog({ encrypted: decodedUsername, original: username });
 
 	try {
+		const decodedUsername = Buffer.from(username, "base64").toString();
+		const decodedPassword = Buffer.from(password, "base64").toString();
+		const decodedIs_admin = Buffer.from(is_admin, "base64").toString();
+
 		// Validate request
-		if (!decodedUsername || !password) {
+		if (!decodedUsername || !decodedPassword) {
 			return res.status(400).send({
 				message: "Missing required fields: username or password!",
 			});
@@ -34,7 +36,7 @@ const createUser = async (req, res) => {
 		const userBody = {
 			username: decodedUsername,
 			password: hash,
-			is_admin,
+			is_admin: decodedIs_admin,
 		};
 
 		// Save User in the database
@@ -52,15 +54,15 @@ const createUser = async (req, res) => {
 // Log the user into the system
 const login = async (req, res) => {
 	// Get, decode and split the credentials sent in Headers
+
 	if (!req.headers.authorization) {
 		return res.status(401).send({ message: "Credentials not found" });
 	}
-	const credentialsToken = req.headers.authorization.split(" ")[1];
-	const decodedCredentials = Buffer.from(credentialsToken, "base64").toString();
-
-	const [username, password] = decodedCredentials.split(":");
 
 	try {
+		const credentialsToken = req.headers.authorization.split(" ")[1];
+
+		const [username, password] = Buffer.from(credentialsToken, "base64").toString().split(":");
 		// Check if the user  exists
 		const user = await userManager.getUserByUsername(username);
 		if (!user) {
@@ -75,7 +77,7 @@ const login = async (req, res) => {
 
 		// Generate a JWT token for the authenticated user
 		const token = jwt.sign({ userId: user.id, isAdmin: user.is_admin }, CONFIG_AUTH.secret, {
-			expiresIn: "1h",
+			expiresIn: "30d",
 		});
 
 		if (!token) {
