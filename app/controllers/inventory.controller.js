@@ -103,14 +103,17 @@ const exportInventory = async (req, res) => {
 		// Get all products associated with the inventory
 		const products = await productManager.getProductsByInventory(inventory_id);
 
-		await generatePdf(products, fileName);
+		await generatePdf(products, fileName, existingCompany.name, existingInventory.name);
 
 		const response = await verifyEmailInAWS(email);
 
+		if (response && response.status === "pending") {
+			return res.status(response.code).send({ message: response.message });
+		}
+
 		const emailOptions = buildEmailOptions({
-			emailFrom: "jfacostamu@unal.edu.co",
 			emailTo: email,
-			subject: `Productos exportados (PDF)`,
+			subject: `Productos exportados ${existingCompany.name} - ${existingInventory.name} (PDF)`,
 			text: `Se han adjunato los productos del inventario: ${existingInventory.name} de tu empresa: ${existingCompany.name}`,
 			html: `<b>Tus productos del inventario: ${existingInventory.name} de la empresa ${existingCompany.name}</b>`,
 			fileName: fileName,

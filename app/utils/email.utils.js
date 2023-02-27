@@ -1,18 +1,20 @@
 const nodemailer = require("nodemailer");
 const AWS = require("aws-sdk");
+const CONFIG_AWS = require("config/aws.config.js");
+const CONFIG_EMAIL = require("config/email.config.js");
 
 // Configure AWS SES Credentials
 AWS.config.update({
-	region: "us-east-1",
-	accessKeyId: "AKIARKCUO56XS2KNOQKF",
-	secretAccessKey: "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",
+	region: CONFIG_AWS.region,
+	accessKeyId: CONFIG_AWS.accessKeyId,
+	secretAccessKey: CONFIG_AWS.secretAccessKey,
 });
 
 const SES = new AWS.SES({ apiVersion: "2010-12-01" });
 
-const buildEmailOptions = ({ emailFrom, emailTo, subject, text, html, fileName }) => {
+const buildEmailOptions = ({ emailTo, subject, text, html, fileName }) => {
 	return {
-		from: emailFrom, // sender address
+		from: CONFIG_EMAIL.senderEmail, // sender address
 		to: emailTo, // list of receivers
 		subject: subject, // Subject line
 		text, // plain text body
@@ -38,21 +40,20 @@ const verifyEmailInAWS = async (email) => {
 
 		// If already verified
 		if (identityInfo && identityInfo.VerificationStatus === "Success") {
-			console.log("La dirección de correo electrónico ya está verificada");
-			return { status: "success", message: "La dirección de correo electrónico ya está verificada" };
+			console.log("Email ya verificado");
 		} else {
-			console.log("La dirección de correo electrónico no está verificada");
+			console.log("Email no verificado");
 			const verifyParams = {
 				EmailAddress: email,
 			};
 
 			const result = await SES.verifyEmailIdentity(verifyParams).promise();
 			console.log("Solicitud de verificación enviada: ", result);
-			return { status: "success", message: "Solicitud de verificación enviada al correo:" + email };
+			return { code: 422, status: "pending", message: "Verification request sent to: " + email };
 		}
 	} catch (error) {
 		console.error(error);
-		return { status: "error", message: error.message };
+		return { status: "error", message: error };
 	}
 };
 
