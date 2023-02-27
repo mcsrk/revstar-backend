@@ -11,11 +11,10 @@ const createUser = async (req, res) => {
 
 	try {
 		const decodedUsername = Buffer.from(username, "base64").toString();
-		const decodedPassword = Buffer.from(password, "base64").toString();
 		const decodedIs_admin = Buffer.from(is_admin, "base64").toString();
 
 		// Validate request
-		if (!decodedUsername || !decodedPassword) {
+		if (!decodedUsername || !password) {
 			return res.status(400).send({
 				message: "Missing required fields: username or password!",
 			});
@@ -61,6 +60,8 @@ const login = async (req, res) => {
 		const credentialsToken = req.headers.authorization.split(" ")[1];
 
 		const [username, password] = Buffer.from(credentialsToken, "base64").toString().split(":");
+		const encodedPassword = Buffer.from(password).toString("base64");
+
 		// Check if the user  exists
 		const user = await userManager.getUserByUsername(username);
 		if (!user) {
@@ -68,7 +69,7 @@ const login = async (req, res) => {
 		}
 
 		// Check if the password is valid
-		const isValidPassword = await bcrypt.compare(password, user.password);
+		const isValidPassword = await bcrypt.compareSync(encodedPassword, user.password);
 		if (!isValidPassword) {
 			return res.status(401).send({ message: "Invalid password" });
 		}
