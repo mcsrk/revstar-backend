@@ -21,6 +21,7 @@
 	"author": "Jhon Acosta",
 	"license": "ISC",
 	"dependencies": {
+		"aws-sdk": "^2.1323.0",
 		"bcrypt": "^5.1.0",
 		"cookie-parser": "^1.4.6",
 		"cors": "^2.8.5",
@@ -30,6 +31,8 @@
 		"jsonwebtoken": "^9.0.0",
 		"module-alias": "^2.2.2",
 		"mysql2": "^3.1.2",
+		"nodemailer": "^6.9.1",
+		"pdfkit": "^0.13.0",
 		"sequelize": "^6.28.2"
 	},
 	"devDependencies": {
@@ -44,6 +47,7 @@
 		"managers": "./app/managers",
 		"models": "./app/models",
 		"routes": "./app/routes",
-		"middelware": "./app/middelware"
+		"middelware": "./app/middelware",
+		"utils": "./app/utils"
 	}
 }
