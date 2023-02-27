@@ -84,11 +84,17 @@ const getInventoryById = async (req, res) => {
 
 // Find a single Inventory by an id
 const exportInventory = async (req, res) => {
-	const { company_nit, inventory_id, email } = req.params;
-
-	const fileName = "inventory-products";
+	const { company_nit, inventory_id } = req.params;
+	const { email } = req.body;
 
 	try {
+		// Validate request
+		if (!email) {
+			return res.status(400).send({
+				message: "Missing required fields: email",
+			});
+		}
+
 		// Checks if comapny and its inventory does actually exists
 		const existingCompany = await companyManager.getCompanyById(company_nit);
 		if (!existingCompany) {
@@ -103,6 +109,7 @@ const exportInventory = async (req, res) => {
 		// Get all products associated with the inventory
 		const products = await productManager.getProductsByInventory(inventory_id);
 
+		const fileName = `inventory-products-${existingCompany.name}-${existingInventory.name}`;
 		await generatePdf(products, fileName, existingCompany.name, existingInventory.name);
 
 		const response = await verifyEmailInAWS(email);
