@@ -12,7 +12,7 @@ router.post("/inventories", inventoryController.createInventory);
 router.get("/inventories", inventoryController.getAllInventories);
 
 // Send pdf file to an email
-router.get("/inventories/:id/export-data/:email", inventoryController.exportInventory);
+router.get("/companies/:company_nit/inventories/:inventory_id/export-data/:email", inventoryController.exportInventory);
 
 // Get inventories by company
 router.get("/companies/:id/inventories", inventoryController.getInventoriesByCompany);

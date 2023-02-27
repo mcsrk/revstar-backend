@@ -7,7 +7,7 @@ const productManager = require("managers/product.manager");
 
 // Utils
 const { generatePdf } = require("utils/pdf.utils");
-const { sendEmail, buildEmailOptions } = require("utils/email.utils");
+const { sendEmail, buildEmailOptions, verifyEmailInAWS } = require("utils/email.utils");
 
 // Create and Save a new Inventory
 const createInventory = async (req, res) => {
@@ -84,22 +84,35 @@ const getInventoryById = async (req, res) => {
 
 // Find a single Inventory by an id
 const exportInventory = async (req, res) => {
-	const { id: inventory_id, email } = req.params;
+	const { company_nit, inventory_id, email } = req.params;
 
 	const fileName = "inventory-products";
 
 	try {
-		const inventory = await inventoryManager.getInventoryById(inventory_id);
+		// Checks if comapny and its inventory does actually exists
+		const existingCompany = await companyManager.getCompanyById(company_nit);
+		if (!existingCompany) {
+			return res.status(404).send({ message: `The company with Nit ${company_nit} doesnt exists` });
+		}
+
+		const existingInventory = await inventoryManager.getInventoryById(inventory_id);
+		if (!existingInventory) {
+			return res.status(404).send({ message: `The inventory with id ${inventory_id} doesnt exists` });
+		}
+
 		// Get all products associated with the inventory
 		const products = await productManager.getProductsByInventory(inventory_id);
 
 		await generatePdf(products, fileName);
 
+		const response = await verifyEmailInAWS(email);
+
 		const emailOptions = buildEmailOptions({
+			emailFrom: "jfacostamu@unal.edu.co",
 			emailTo: email,
-			subject: "Export Inventory PDF",
-			text: "Exported products",
-			html: `<b>Tus productos del inventario llamado: ${inventory.name}</b>`,
+			subject: `Productos exportados (PDF)`,
+			text: `Se han adjunato los productos del inventario: ${existingInventory.name} de tu empresa: ${existingCompany.name}`,
+			html: `<b>Tus productos del inventario: ${existingInventory.name} de la empresa ${existingCompany.name}</b>`,
 			fileName: fileName,
 		});
 		const result = await sendEmail(emailOptions);
