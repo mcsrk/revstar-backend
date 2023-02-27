@@ -1,6 +1,13 @@
+const fs = require("fs");
+
 // Managers
 const inventoryManager = require("managers/inventory.manager");
 const companyManager = require("managers/company.manager");
+const productManager = require("managers/product.manager");
+
+// Utils
+const { generatePdf } = require("utils/pdf.utils");
+const { sendEmail, buildEmailOptions } = require("utils/email.utils");
 
 // Create and Save a new Inventory
 const createInventory = async (req, res) => {
@@ -75,6 +82,38 @@ const getInventoryById = async (req, res) => {
 	}
 };
 
+// Find a single Inventory by an id
+const exportInventory = async (req, res) => {
+	const { id: inventory_id, email } = req.params;
+
+	const fileName = "inventory-products";
+
+	try {
+		const inventory = await inventoryManager.getInventoryById(inventory_id);
+		// Get all products associated with the inventory
+		const products = await productManager.getProductsByInventory(inventory_id);
+
+		await generatePdf(products, fileName);
+
+		const emailOptions = buildEmailOptions({
+			emailTo: email,
+			subject: "Export Inventory PDF",
+			text: "Exported products",
+			html: `<b>Tus productos del inventario llamado: ${inventory.name}</b>`,
+			fileName: fileName,
+		});
+		const result = await sendEmail(emailOptions);
+
+		fs.unlinkSync(`${fileName}.pdf`);
+
+		return res.status(200).send(result);
+	} catch (error) {
+		return res.status(500).send({
+			message: error.message || "Some error occurred while fetching a Inventory.",
+		});
+	}
+};
+
 // Update a Inventory by the id in the request
 const updateInventory = async (req, res) => {
 	const { id } = req.params;
@@ -125,6 +164,7 @@ const deleteInventory = async (req, res) => {
 module.exports = {
 	createInventory,
 	getAllInventories,
+	exportInventory,
 	getInventoriesByCompany,
 	getInventoryById,
 	updateInventory,
